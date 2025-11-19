@@ -9,20 +9,22 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 
 <style>
-  /* 🧸 body는 "배경 + 가운데 정렬"만 담당 */
+  /* 🧸 전체 화면 배경 + 가로 중앙 정렬 */
   body {
     font-family: "Pretendard", sans-serif;
     background: #FDFBF7;
     margin: 0;
+    min-height: 100vh;
     display: flex;
-    justify-content: center;
+    justify-content: center;   /* 가로 중앙 */
+    align-items: flex-start;   /* 세로는 위에서 조금 내려오게 */
   }
 
-  /* 🧸 wrapper 박스가 기존 body 스타일을 그대로 상속 */
+  /* 🧸 카드 박스 (예전 body 스타일 옮겨옴) */
   .wrapper {
     width: 100%;
     max-width: 360px;
-    margin-top: 32px;
+    margin: 40px 16px 40px;
     padding: 22px;
     background: #FDFBF7;
     border-radius: 16px;
@@ -57,12 +59,12 @@
     background: #F7E8EE;
     cursor: pointer;
     font-size: 11px;
-    color:#A49392;
+    color:#A49392;   /* 기본은 연한 글씨 */
     transition: 0.15s;
   }
   .lang-buttons button.active {
-    font-weight: 700;
-    color:#5A4B4A;
+    font-weight: 700;      /* ✔ 선택된 언어는 볼드! */
+    color:#5A4B4A;         /* ✔ 글씨 진하게 */
   }
 
   label {
@@ -152,8 +154,7 @@
 
 <div id="result"></div>
 
-</div> <!-- wrapper end -->
-
+</div> <!-- /.wrapper -->
 
 <script>
 let currentLang = "ko";
@@ -310,7 +311,7 @@ function calc() {
     return;
   }
 
-  // 상황: 정확한 해 없음 → 근사값 탐색
+  // 근사 조합 찾기
   let bestDiff = Infinity;
   let best = null;
 
@@ -380,7 +381,7 @@ function calc() {
   document.getElementById("result").innerHTML = output;
 }
 
-// 초기화
+// page init
 updateUI();
 </script>
 
