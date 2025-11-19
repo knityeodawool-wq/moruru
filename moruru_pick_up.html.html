@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🧸 Moruru Pick-up Calculator 🧸</title>
+
+<!-- Pretendard -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+  body {
+    font-family: "Pretendard", sans-serif;
+    max-width: 360px;
+    margin: 32px auto;
+    padding: 22px;
+    background: #FDFBF7;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    color: #5A4B4A;
+  }
+
+  h2 {
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+
+  .madeby {
+    text-align:center;
+    font-size: 12px;
+    color:#AFA3A3;
+    margin-bottom: 12px;
+  }
+
+  /* 📌 언어 토글 */
+  .lang-buttons {
+    text-align:center;
+    margin-bottom: 12px;
+  }
+  .lang-buttons button {
+    padding: 4px 10px;
+    margin: 0 3px;
+    border-radius: 10px;
+    border: none;
+    background: #F7E8EE;
+    cursor: pointer;
+    font-size: 11px;
+    color:#A49392;   /* 기본은 연한 글씨 */
+    transition: 0.15s;
+  }
+  .lang-buttons button.active {
+    font-weight: 700;      /* ✔ 선택된 언어는 볼드! */
+    color:#5A4B4A;         /* ✔ 글씨 진하게 */
+  }
+
+  label {
+    display:block;
+    margin-top: 12px;
+    margin-bottom: 4px;
+    font-size: 14px;
+    color:#5A4B4A;
+    font-weight: 600;
+  }
+
+  input {
+    width:100%;
+    padding: 10px;
+    border:1px solid #E8D8DD;
+    border-radius: 12px;
+    background:#FFF;
+    font-size:14px;
+    color:#5A4B4A;
+  }
+
+  input:focus {
+    border-color:#F2C8D6;
+    outline:none;
+    box-shadow:0 0 0 2px rgba(242,200,214,0.3);
+  }
+
+  button.calc-btn {
+    width:100%;
+    padding:12px;
+    margin-top:14px;
+    background:#F2C8D6;
+    border:none;
+    border-radius:14px;
+    font-size:15px;
+    cursor:pointer;
+    color:#5A4B4A;
+    font-weight:600;
+    transition:0.15s;
+  }
+  button.calc-btn:hover {
+    background:#EFB9CA;
+  }
+
+  #result {
+    margin-top:18px;
+    background:#FFF;
+    padding:14px;
+    border-radius:12px;
+    border:1px solid #F7E8EE;
+    font-size:14px;
+    line-height:1.6;
+    color:#5A4B4A;
+  }
+
+  .pattern-seq {
+    background:#F7E8EE;
+    padding:10px;
+    border-radius:10px;
+    margin-top:10px;
+    font-size:13px;
+    word-break: break-all;
+    line-height:1.5;
+  }
+</style>
+</head>
+
+<body>
+
+<h2 id="title">🧸 모루루 코줍기 계산기 🧸</h2>
+<p class="madeby">Made by Yeodawool</p>
+
+<!-- 🇰🇷🇺🇸 언어 토글 -->
+<div class="lang-buttons">
+  <button id="btn-ko" class="active" onclick="setLang('ko')">Korean</button>
+  <button id="btn-en" onclick="setLang('en')">English</button>
+</div>
+
+<label id="label-rows">총 단수</label>
+<input id="rows" type="number" placeholder="ex) 53">
+
+<label id="label-sts">주워야 하는 코 수</label>
+<input id="stitches" type="number" placeholder="ex) 39">
+
+<button class="calc-btn" onclick="calc()" id="calc-btn">계산하기</button>
+
+<div id="result"></div>
+
+<script>
+let currentLang = "ko";
+
+const langData = {
+  ko: {
+    title: "🧸 모루루 코줍기 계산기 🧸",
+    rows: "총 단수",
+    sts: "주워야 하는 코 수",
+    calc: "계산하기",
+    exact: "가장 균일한 코줍기 분배는 아래와 같습니다.",
+    noExact: "정확한 정수 조합은 존재하지 않습니다.",
+    approx: "가장 가까운 코줍기 분배는 아래와 같습니다.",
+    seq: "💭 추천 순서:",
+    seqGuide: "이 순서를 따라 코를 주우면 가장 균일합니다.",
+    fill: "값을 모두 입력해주세요!",
+    t4_3: "4단에 3코 코줍기",
+    t3_2: "3단에 2코 코줍기",
+    t5_4: "5단에 4코 코줍기",
+    t2_1: "2단에 1코 코줍기",
+    times: "회"
+  },
+  en: {
+    title: "🧸 Moruru Pick-up Calculator 🧸",
+    rows: "Total rows",
+    sts: "Stitches to pick up",
+    calc: "Calculate",
+    exact: "The most even distribution is as follows:",
+    noExact: "No exact integer solution exists.",
+    approx: "The closest distribution is as follows:",
+    seq: "💭 Recommended sequence:",
+    seqGuide: "Follow this order for the most even result.",
+    fill: "Please fill in all fields!",
+    t4_3: "Pick up 3 sts every 4 rows",
+    t3_2: "Pick up 2 sts every 3 rows",
+    t5_4: "Pick up 4 sts every 5 rows",
+    t2_1: "Pick up 1 st every 2 rows",
+    times: "times"
+  }
+};
+
+function updateUI() {
+  document.getElementById("label-rows").innerText = langData[currentLang].rows;
+  document.getElementById("label-sts").innerText = langData[currentLang].sts;
+  document.getElementById("calc-btn").innerText = langData[currentLang].calc;
+  document.getElementById("title").innerText = langData[currentLang].title;
+}
+
+// 언어 변경 + active 버튼 처리 ✨
+function setLang(lang) {
+  currentLang = lang;
+  updateUI();
+
+  document.querySelectorAll(".lang-buttons button")
+    .forEach(btn => btn.classList.remove("active"));
+
+  document.getElementById("btn-" + lang).classList.add("active");
+}
+
+// 균일 패턴 생성 로직
+function makeSequence(aCnt, bCnt, aVal, bVal) {
+  let total = aCnt + bCnt;
+  if (total <= 0) return "";
+  let seq = [];
+
+  let bigCount = aCnt >= bCnt ? aCnt : bCnt;
+  let smallCount = aCnt >= bCnt ? bCnt : aCnt;
+  let bigVal = aCnt >= bCnt ? aVal : bVal;
+  let smallVal = aCnt >= bCnt ? bVal : aVal;
+
+  let interval = smallCount > 0 ? total / smallCount : total;
+  let nextSmall = 0;
+
+  for (let i = 0; i < total; i++) {
+    let target = Math.round(nextSmall * interval);
+
+    if (i === target && smallCount > 0) {
+      seq.push(smallVal);
+      smallCount--;
+      nextSmall++;
+    } else if (bigCount > 0) {
+      seq.push(bigVal);
+      bigCount--;
+    } else {
+      seq.push(smallVal);
+      smallCount--;
+    }
+  }
+  return seq.join("-");
+}
+
+function calc() {
+  let R = Number(document.getElementById("rows").value);
+  let S = Number(document.getElementById("stitches").value);
+
+  if (!R || !S) {
+    document.getElementById("result").innerHTML = langData[currentLang].fill;
+    return;
+  }
+
+  let output = "";
+
+  // CASE A
+  let x = 3*S - 2*R - 2;
+  let y = -4*S + 3*R + 3;
+  let caseA = (x >= 0 && y >= 0 && Number.isInteger(x) && Number.isInteger(y));
+
+  // CASE B
+  let p = 2*S - R - 1;
+  let q = -3*S + 2*R + 2;
+  let caseB = (p >= 0 && q >= 0 && Number.isInteger(p) && Number.isInteger(q));
+
+  // CASE C
+  let a = -3*R + 4*S - 3;
+  let b = 4*R - 5*S + 4;
+  let caseC = (a >= 0 && b >= 0 && Number.isInteger(a) && Number.isInteger(b));
+
+  function patternLine(type, count) {
+    if (count <= 0) return "";
+    return `▫ ${langData[currentLang][type]} × ${count} ${langData[currentLang].times}<br>`;
+  }
+
+  // exact: C > A > B
+  if (caseC) {
+    output += "<strong>" + langData[currentLang].exact + "</strong><br><br>";
+    output += patternLine("t5_4", a);
+    output += patternLine("t4_3", b);
+    let seq = makeSequence(a, b, 4, 3);
+    if (seq) {
+      output += `<div class="pattern-seq"><strong>${langData[currentLang].seq}</strong><br>${seq}</div>`;
+      output += "<br>" + langData[currentLang].seqGuide;
+    }
+    document.getElementById("result").innerHTML = output;
+    return;
+  }
+
+  if (caseA) {
+    output += "<strong>" + langData[currentLang].exact + "</strong><br><br>";
+    output += patternLine("t4_3", x);
+    output += patternLine("t3_2", y);
+    let seq = makeSequence(x, y, 3, 2);
+    if (seq) {
+      output += `<div class="pattern-seq"><strong>${langData[currentLang].seq}</strong><br>${seq}</div>`;
+      output += "<br>" + langData[currentLang].seqGuide;
+    }
+    document.getElementById("result").innerHTML = output;
+    return;
+  }
+
+  if (caseB) {
+    output += "<strong>" + langData[currentLang].exact + "</strong><br><br>";
+    output += patternLine("t3_2", p);
+    output += patternLine("t2_1", q);
+    let seq = makeSequence(p, q, 2, 1);
+    if (seq) {
+      output += `<div class="pattern-seq"><strong>${langData[currentLang].seq}</strong><br>${seq}</div>`;
+      output += "<br>" + langData[currentLang].seqGuide;
+    }
+    document.getElementById("result").innerHTML = output;
+    return;
+  }
+
+  // approximate
+  let bestDiff = Infinity;
+  let best = null;
+
+  // near-case A
+  for (let i = 0; i <= 80; i++) {
+    for (let j = 0; j <= 80; j++) {
+      let rows = 4*i + 3*j - 1;
+      let sts  = 3*i + 2*j;
+      let diff = Math.abs(rows - R) + Math.abs(sts - S);
+      if (diff < bestDiff) {
+        bestDiff = diff;
+        best = { type:"A", i, j, rows, sts };
+      }
+    }
+  }
+
+  // near-case B
+  for (let i = 0; i <= 80; i++) {
+    for (let j = 0; j <= 80; j++) {
+      let rows = 3*i + 2*j - 1;
+      let sts  = 2*i + j;
+      let diff = Math.abs(rows - R) + Math.abs(sts - S);
+      if (diff < bestDiff) {
+        bestDiff = diff;
+        best = { type:"B", i, j, rows, sts };
+      }
+    }
+  }
+
+  // near-case C
+  for (let i = 0; i <= 80; i++) {
+    for (let j = 0; j <= 80; j++) {
+      let rows = 5*i + 4*j - 1;
+      let sts  = 4*i + 3*j;
+      let diff = Math.abs(rows - R) + Math.abs(sts - S);
+      if (diff < bestDiff) {
+        bestDiff = diff;
+        best = { type:"C", i, j, rows, sts };
+      }
+    }
+  }
+
+  output += "<strong>" + langData[currentLang].noExact + "</strong><br><br>";
+  output += "<strong>" + langData[currentLang].approx + "</strong><br><br>";
+
+  let seq;
+
+  if (best.type === "A") {
+    output += patternLine("t4_3", best.i);
+    output += patternLine("t3_2", best.j);
+    seq = makeSequence(best.i, best.j, 3, 2);
+  } else if (best.type === "B") {
+    output += patternLine("t3_2", best.i);
+    output += patternLine("t2_1", best.j);
+    seq = makeSequence(best.i, best.j, 2, 1);
+  } else {
+    output += patternLine("t5_4", best.i);
+    output += patternLine("t4_3", best.j);
+    seq = makeSequence(best.i, best.j, 4, 3);
+  }
+
+  if (seq) {
+    output += `<div class="pattern-seq"><strong>${langData[currentLang].seq}</strong><br>${seq}</div>`;
+    output += "<br>" + langData[currentLang].seqGuide;
+  }
+
+  document.getElementById("result").innerHTML = output;
+}
+
+// page init
+updateUI();
+</script>
+
+</body>
+</html>
